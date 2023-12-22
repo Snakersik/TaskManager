@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-const AddTaskForm = ({ onAddTask }) => {
-  const [taskName, setTaskName] = useState('');
-  const [taskContent, setContentName] = useState('');
+const AddTaskForm = ({ onAddTask, handleDisplayCreate }) => {
+  const [taskName, setTaskName] = useState("");
+  const [taskContent, setContentName] = useState("");
 
   const handleTaskNameChange = (e) => {
     setTaskName(e.target.value);
@@ -13,49 +13,48 @@ const AddTaskForm = ({ onAddTask }) => {
   };
 
   const handleAddTask = () => {
-    if (taskName.trim() !== '') {
+    if (taskName.trim() !== "") {
       const newTask = {
         id: new Date().getTime(),
         name: taskName,
         content: taskContent,
-        status: 'Pending', 
+        status: "Pending",
       };
 
       onAddTask(newTask);
 
-      setTaskName('');
-      setContentName('');
+      setTaskName("");
+      setContentName("");
     }
   };
 
   return (
-    <div>
+    <div className="CreateTaskForm">
       <h2>Dodaj Nowe Zadanie</h2>
-      <div>
-        <label htmlFor="taskName">Nazwa Zadania</label>
-        <input 
-          placeholder="Nazwa zadania"
-          type="text" 
-          value={taskName} 
-          onChange={handleTaskNameChange} 
-        />
+
+      <label htmlFor="taskName">Nazwa Zadania</label>
+      <input
+        placeholder="Nazwa zadania"
+        type="text"
+        value={taskName}
+        onChange={handleTaskNameChange}
+      />
+
+      <label htmlFor="taskContent">Opis</label>
+      <textarea
+        placeholder="Opis"
+        value={taskContent}
+        onChange={handleTaskContentChange}
+        rows={4} // Adjust the number of rows as needed
+        cols={50} // Adjust the number of columns as needed
+      />
+      <div className="ButtonsContainers">
+        <button onClick={handleAddTask}>Dodaj Zadanie</button>
+        <button onClick={handleDisplayCreate}>Anuluj</button>
       </div>
-      <div>
-        <label htmlFor="taskContent">Opis</label>
-        <textarea
-          placeholder="Opis"
-          value={taskContent}
-          onChange={handleTaskContentChange}
-          rows={4} // Adjust the number of rows as needed
-          cols={50} // Adjust the number of columns as needed
-        />
-      </div>
-      <button onClick={handleAddTask}>Dodaj Zadanie</button>
     </div>
   );
 };
-
-
 
 export default AddTaskForm;
 
