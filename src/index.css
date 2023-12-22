@@ -1,13 +1,28 @@
+ /*#root {
+  text-align: center; Center child elements 
+}*/
+
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Ensure full height of the viewport */
+  margin: 0; /* Remove default margin */
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+textarea {
+  min-width: 100%;
+  min-height: 100px;
+  max-width: 100%; /* Adjust the maximum width as needed */
+  max-height: 400px; /* Adjust the maximum height as needed */
+  width: 100%; /* Make the textarea responsive */
+}
+
+input {
+  width: 100%
 }

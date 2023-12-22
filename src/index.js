@@ -1,12 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import App from "./App";
+import AddTaskForm from "./AddTaskForm";
+
+const handleAddTask = (newTask) => {
+  // Twoja implementacja handleAddTask
+};
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <App />
+    <AddTaskForm onAddTask={handleAddTask}/>
   </React.StrictMode>
 );
 
