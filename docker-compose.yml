@@ -1,0 +1,32 @@
+version: '3'
+services:
+  web:
+    image: node:14
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - sql-server
+    networks:
+      - app-network
+
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-preview-ubuntu-22.04
+    environment:
+      SA_PASSWORD: Password1!
+      ACCEPT_EULA: Y
+    volumes:
+      - sql_data:/var/opt/mssql
+    ports:
+      - "1433:1433"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  sql_data:
