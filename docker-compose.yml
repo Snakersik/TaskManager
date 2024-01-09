@@ -1,9 +1,9 @@
-version: '3'
+version: "3"
 services:
   web:
     image: node:14
     build:
-      context: .
+      context: ./frontend
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
@@ -15,7 +15,7 @@ services:
   sql-server:
     image: mcr.microsoft.com/mssql/server:2022-preview-ubuntu-22.04
     environment:
-      SA_PASSWORD: Password1!
+      SA_PASSWORD: YourPassword123!
       ACCEPT_EULA: Y
     volumes:
       - sql_data:/var/opt/mssql
