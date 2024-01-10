@@ -1,6 +1,0 @@
-# SQL Server image
-FROM mcr.microsoft.com/mssql/server:2022-preview-ubuntu-22.04
-
-# SQL Server setup
-ENV SA_PASSWORD=YourPassword123!
-ENV ACCEPT_EULA=Y

@@ -43,8 +43,8 @@ function App() {
   return (
     <div className="App">
       <h1>TaskManager</h1>
-      <button className="btn" onClick={handleDisplayCreate}>
-        CREATE NEW
+      <button className="btn createbtn" onClick={handleDisplayCreate}>
+        DODAJ NOWE
       </button>
       {displayCreate ? (
         <AddTaskForm handleDisplayCreate={handleDisplayCreate} />
