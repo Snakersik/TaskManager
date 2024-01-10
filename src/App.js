@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AddTaskForm from "./AddTaskForm";
+import createTable from "./server";
 
 const TaskBase = [
   {
@@ -55,6 +56,7 @@ function App() {
           <Task key={index} name={task.name} desc={task.desc} />
         ))}
       </div>
+      <button className="btn" onclick={createTable} />
     </div>
   );
 }
