@@ -24,6 +24,23 @@ services:
     networks:
       - app-network
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - sql-server
+    networks:
+      - app-network
+    environment:
+      SQL_SERVER_HOST: sql-server
+      SQL_SERVER_PORT: 1433
+      SQL_SERVER_DATABASE: TaskManagerDB
+      SQL_SERVER_USER: sa
+      SQL_SERVER_PASSWORD: YourPassword123!
+
 networks:
   app-network:
     driver: bridge
