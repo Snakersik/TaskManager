@@ -5,27 +5,45 @@ const sql = require("mssql");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Konfiguracja parsera do obsługi danych w formacie JSON
 app.use(bodyParser.json());
 
-// Konfiguracja połączenia z bazą danych
 const config = {
   user: "sa",
   password: "Password1!",
   server: "sql-server",
-  database: "TaskManager",
+  database: "TaskManagerDB",
   options: {
     encrypt: true,
     trustServerCertificate: true,
   },
 };
 
-// Database initializer function
+async function waitForDatabase() {
+  let attempts = 0;
+  const maxAttempts = 10;
+  const delay = 10000; // 5 seconds
+
+  while (attempts < maxAttempts) {
+    try {
+      console.log("Trying to connect to the database...");
+      await sql.connect(config);
+      console.log("Database connected successfully");
+      return;
+    } catch (error) {
+      console.error("Error connecting to the database:", error);
+      attempts++;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+
+  console.error("Unable to connect to the database. Exiting...");
+  process.exit(1);
+}
+
 async function initializeDatabase() {
   try {
     const pool = await sql.connect(config);
 
-    // Check if Tasks table exists
     const tasksTable = await pool.request().query(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Tasks')
       BEGIN
@@ -37,7 +55,6 @@ async function initializeDatabase() {
       END
     `);
 
-    // Check if Users table exists
     const usersTable = await pool.request().query(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Users')
       BEGIN
@@ -48,14 +65,13 @@ async function initializeDatabase() {
       END
     `);
 
-    console.log('Database initialized successfully');
+    console.log("Database initialized successfully");
   } catch (error) {
-    console.error('Error initializing database:', error);
+    console.error("Error initializing database:", error);
     throw error;
   }
 }
 
-// Endpoint do odczytu wszystkich zadań
 app.get("/tasks", async (req, res) => {
   try {
     const pool = await sql.connect(config);
@@ -67,7 +83,6 @@ app.get("/tasks", async (req, res) => {
   }
 });
 
-// Endpoint do odczytu konkretnego zadania
 app.get("/tasks/:id", async (req, res) => {
   const taskId = req.params.id;
   try {
@@ -88,7 +103,6 @@ app.get("/tasks/:id", async (req, res) => {
   }
 });
 
-// Endpoint do tworzenia nowego zadania
 app.post("/tasks", async (req, res) => {
   const { title, description } = req.body;
   try {
@@ -109,7 +123,6 @@ app.post("/tasks", async (req, res) => {
   }
 });
 
-// Endpoint do edycji istniejącego zadania
 app.put("/tasks/:id", async (req, res) => {
   const taskId = req.params.id;
   const { title, description } = req.body;
@@ -131,7 +144,6 @@ app.put("/tasks/:id", async (req, res) => {
   }
 });
 
-// Endpoint do usuwania zadania
 app.delete("/tasks/:id", async (req, res) => {
   const taskId = req.params.id;
   try {
@@ -148,9 +160,9 @@ app.delete("/tasks/:id", async (req, res) => {
   }
 });
 
-initializeDatabase();
-
-// Nasłuchuj na określonym porcie
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+waitForDatabase().then(() => {
+  initializeDatabase();
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
 });
