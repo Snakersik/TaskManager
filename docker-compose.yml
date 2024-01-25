@@ -1,7 +1,6 @@
 version: "3"
 services:
   web:
-    image: node:14
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -15,7 +14,7 @@ services:
   sql-server:
     image: mcr.microsoft.com/mssql/server:2022-preview-ubuntu-22.04
     environment:
-      SA_PASSWORD: YourPassword123!
+      SA_PASSWORD: Password1!
       ACCEPT_EULA: Y
     volumes:
       - sql_data:/var/opt/mssql
@@ -37,9 +36,6 @@ services:
     environment:
       SQL_SERVER_HOST: sql-server
       SQL_SERVER_PORT: 1433
-      SQL_SERVER_DATABASE: TaskManagerDB
-      SQL_SERVER_USER: sa
-      SQL_SERVER_PASSWORD: YourPassword123!
 
 networks:
   app-network:

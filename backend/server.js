@@ -11,14 +11,49 @@ app.use(bodyParser.json());
 // Konfiguracja połączenia z bazą danych
 const config = {
   user: "sa",
-  password: "YourPassword123!",
+  password: "Password1!",
   server: "sql-server",
-  database: "TaskManagerDB",
+  database: "TaskManager",
   options: {
     encrypt: true,
     trustServerCertificate: true,
   },
 };
+
+// Database initializer function
+async function initializeDatabase() {
+  try {
+    const pool = await sql.connect(config);
+
+    // Check if Tasks table exists
+    const tasksTable = await pool.request().query(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Tasks')
+      BEGIN
+        CREATE TABLE Tasks (
+          Id INT PRIMARY KEY IDENTITY(1,1),
+          Title NVARCHAR(255) NOT NULL,
+          Description NVARCHAR(MAX)
+        );
+      END
+    `);
+
+    // Check if Users table exists
+    const usersTable = await pool.request().query(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Users')
+      BEGIN
+        CREATE TABLE Users (
+          Id INT PRIMARY KEY IDENTITY(1,1),
+          Username NVARCHAR(255) NOT NULL
+        );
+      END
+    `);
+
+    console.log('Database initialized successfully');
+  } catch (error) {
+    console.error('Error initializing database:', error);
+    throw error;
+  }
+}
 
 // Endpoint do odczytu wszystkich zadań
 app.get("/tasks", async (req, res) => {
@@ -112,6 +147,8 @@ app.delete("/tasks/:id", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+initializeDatabase();
 
 // Nasłuchuj na określonym porcie
 app.listen(PORT, () => {

@@ -5,13 +5,13 @@ FROM node:16
 WORKDIR /app
 
 # Skopiuj pliki projektu do katalogu roboczego
-COPY package.json package-lock.json /app/
+COPY package*.json package-lock*.json ./
 
 # Zainstaluj zależności
 RUN npm install
 
 # Skopiuj resztę plików do katalogu roboczego
-COPY . /app/
+COPY . .
 
 # Wyeksponuj port, na którym działa aplikacja
 EXPOSE 3000

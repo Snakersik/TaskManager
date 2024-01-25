@@ -5,7 +5,7 @@ FROM node:14
 WORKDIR /app
 
 # Copy package.json and package-lock.json to leverage Docker cache
-COPY package*.json ./
+COPY package*.json package-lock*.json ./
 
 # Install dependencies
 RUN npm install
