@@ -11,7 +11,6 @@ const config = {
   user: "sa",
   password: "Password1!",
   server: "sql-server",
-  database: "TaskManagerDB",
   options: {
     encrypt: true,
     trustServerCertificate: true,
@@ -43,6 +42,13 @@ async function waitForDatabase() {
 async function initializeDatabase() {
   try {
     const pool = await sql.connect(config);
+    const dbInit1 = await pool.request().query(`
+      IF NOT EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = 'TaskManagerDB')
+      CREATE DATABASE TaskManagerDB;
+    `)
+    const dbInit2 = await pool.request().query(`
+      USE TaskManagerDB;
+    `)
 
     const tasksTable = await pool.request().query(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Tasks')
