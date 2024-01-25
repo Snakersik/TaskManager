@@ -1,15 +1,19 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const sql = require("mssql");
+const cors = require("cors");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+app.use(cors());
 
 app.use(bodyParser.json());
 
 const config = {
   user: "sa",
   password: "Password1!",
+  database: "TaskManagerDB",
   server: "sql-server",
   options: {
     encrypt: true,
@@ -45,10 +49,11 @@ async function initializeDatabase() {
     const dbInit1 = await pool.request().query(`
       IF NOT EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = 'TaskManagerDB')
       CREATE DATABASE TaskManagerDB;
-    `)
+    `);
+
     const dbInit2 = await pool.request().query(`
       USE TaskManagerDB;
-    `)
+    `);
 
     const tasksTable = await pool.request().query(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Tasks')
