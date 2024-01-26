@@ -2,15 +2,23 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const sql = require("mssql");
 const cors = require("cors");
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
-
 app.use(bodyParser.json());
 
 const config = {
+  user: "sa",
+  password: "Password1!",
+  server: "sql-server",
+  options: {
+    encrypt: true,
+    trustServerCertificate: true,
+  },
+};
+
+const config2 = {
   user: "sa",
   password: "Password1!",
   database: "TaskManagerDB",
@@ -71,10 +79,12 @@ async function initializeDatabase() {
       BEGIN
         CREATE TABLE Users (
           Id INT PRIMARY KEY IDENTITY(1,1),
-          Username NVARCHAR(255) NOT NULL
+          Username NVARCHAR(255) NOT NULL,
+          Password NVARCHAR(255) NOT NULL
         );
       END
     `);
+    pool.close();
 
     console.log("Database initialized successfully");
   } catch (error) {
@@ -85,7 +95,7 @@ async function initializeDatabase() {
 
 app.get("/tasks", async (req, res) => {
   try {
-    const pool = await sql.connect(config);
+    const pool = await sql.connect(config2);
     const result = await pool.request().query("SELECT * FROM Tasks");
     res.json(result.recordset);
   } catch (error) {
@@ -97,7 +107,7 @@ app.get("/tasks", async (req, res) => {
 app.get("/tasks/:id", async (req, res) => {
   const taskId = req.params.id;
   try {
-    const pool = await sql.connect(config);
+    const pool = await sql.connect(config2);
     const result = await pool
       .request()
       .input("id", sql.Int, taskId)
@@ -113,11 +123,11 @@ app.get("/tasks/:id", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-//creating enw task
+
 app.post("/tasks", async (req, res) => {
   const { title, description } = req.body;
   try {
-    const pool = await sql.connect(config);
+    const pool = await sql.connect(config2);
     const result = await pool
       .request()
       .input("title", sql.NVarChar, title)
@@ -135,12 +145,12 @@ app.post("/tasks", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-//editin task
+
 app.put("/tasks/:id", async (req, res) => {
   const taskId = req.params.id;
   const { title, description } = req.body;
   try {
-    const pool = await sql.connect(config);
+    const pool = await sql.connect(config2);
     await pool
       .request()
       .input("id", sql.Int, taskId)
@@ -160,7 +170,7 @@ app.put("/tasks/:id", async (req, res) => {
 app.delete("/tasks/:id", async (req, res) => {
   const taskId = req.params.id;
   try {
-    const pool = await sql.connect(config);
+    const pool = await sql.connect(config2);
     await pool
       .request()
       .input("id", sql.Int, taskId)
@@ -172,6 +182,81 @@ app.delete("/tasks/:id", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+app.post("/register", async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const pool = await sql.connect(config);
+    const result = await pool
+      .request()
+      .input("username", sql.NVarChar, username)
+      .input("password", sql.NVarChar, password)
+      .query(
+        "INSERT INTO Users (Username, Password) VALUES (@username, @password)"
+      );
+
+    res.json({ message: "User registered successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+const jwt = require("jsonwebtoken");
+
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const pool = await sql.connect(config2);
+    const result = await pool
+      .request()
+      .input("username", sql.NVarChar, username)
+      .query("SELECT * FROM Users WHERE Username = @username");
+
+    if (result.recordset.length > 0) {
+      const user = result.recordset[0];
+      const passwordMatch = password === user.Password;
+
+      if (user.Password === password) {
+        const token = jwt.sign(
+          { userId: user.Id },
+          "x%W2oP9z$L&k#qR*8@!E7h^sG3aB@fMv",
+          {
+            expiresIn: "1h",
+          }
+        );
+
+        res.json({ message: "Login successful", token });
+      } else {
+        res.status(401).send("Invalid password");
+      }
+    } else {
+      res.status(404).send("User not found");
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(403).send("Token not provided");
+  }
+
+  jwt.verify(token, "x%W2oP9z$L&k#qR*8@!E7h^sG3aB@fMv", (err, decoded) => {
+    if (err) {
+      return res.status(401).send("Invalid token");
+    }
+
+    req.userId = decoded.userId;
+    next();
+  });
+};
 
 waitForDatabase().then(() => {
   initializeDatabase();
