@@ -149,9 +149,11 @@ app.post("/tasks", async (req, res) => {
 app.put("/tasks/:id", async (req, res) => {
   const taskId = req.params.id;
   const { title, description } = req.body;
+  console.log("Received data:", { taskId, title, description });
+
   try {
     const pool = await sql.connect(config2);
-    await pool
+    const result = await pool
       .request()
       .input("id", sql.Int, taskId)
       .input("title", sql.NVarChar, title)
@@ -160,7 +162,14 @@ app.put("/tasks/:id", async (req, res) => {
         "UPDATE Tasks SET Title = @title, Description = @description WHERE Id = @id"
       );
 
-    res.json({ id: taskId, title, description });
+    console.log("SQL query result:", result);
+
+    // Check if the task was updated successfully
+    if (result.rowsAffected[0] > 0) {
+      res.json({ Id: taskId, Title: title, Description: description });
+    } else {
+      res.status(404).send("Task not found");
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
