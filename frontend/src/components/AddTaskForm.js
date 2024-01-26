@@ -1,30 +1,48 @@
 import React, { useState } from "react";
+import { useTasksContext } from "../hooks/useTaskContext";
 
 const AddTaskForm = ({ onAddTask, handleDisplayCreate }) => {
-  const [taskName, setTaskName] = useState("");
-  const [taskContent, setContentName] = useState("");
+  const { dispatch } = useTasksContext();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [error, setError] = useState(null);
 
-  const handleTaskNameChange = (e) => {
-    setTaskName(e.target.value);
+  const handletitleChange = (e) => {
+    setTitle(e.target.value);
   };
 
-  const handleTaskContentChange = (e) => {
-    setContentName(e.target.value);
+  const handledescriptionChange = (e) => {
+    setDescription(e.target.value);
   };
 
-  const handleAddTask = () => {
-    if (taskName.trim() !== "") {
-      const newTask = {
-        id: new Date().getTime(),
-        name: taskName,
-        content: taskContent,
-        status: "Pending",
-      };
+  const handleAddTask = async () => {
+    if (!title || !description) {
+      setError("Please provide both title and description.");
+      return;
+    }
+    const task = { title, description };
 
-      onAddTask(newTask);
+    const response = await fetch("http://localhost:5000/tasks", {
+      method: "POST",
+      body: JSON.stringify(task),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-      setTaskName("");
-      setContentName("");
+    const json = await response.json();
+    if (!response.ok) {
+      setError(json.error);
+    }
+
+    if (response.ok) {
+      setTitle("");
+      setDescription("");
+      setError(null);
+      console.log("new task added", json);
+      dispatch({ type: "CREATE_TASK", payload: json });
+    } else {
+      console.error("Invalid data format received from the server:", json);
     }
   };
 
@@ -36,18 +54,19 @@ const AddTaskForm = ({ onAddTask, handleDisplayCreate }) => {
       <input
         placeholder="Nazwa zadania"
         type="text"
-        value={taskName}
-        onChange={handleTaskNameChange}
+        value={title}
+        onChange={handletitleChange}
       />
 
       <label htmlFor="taskContent">Opis</label>
       <textarea
         placeholder="Opis"
-        value={taskContent}
-        onChange={handleTaskContentChange}
+        value={description}
+        onChange={handledescriptionChange}
         rows={4} // Adjust the number of rows as needed
         cols={50} // Adjust the number of columns as needed
       />
+      {error && <p className="error-message">{error}</p>}
       <div className="ButtonsContainers">
         <button onClick={handleAddTask}>Dodaj Zadanie</button>
         <button onClick={handleDisplayCreate}>Anuluj</button>

@@ -113,7 +113,7 @@ app.get("/tasks/:id", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
+//creating enw task
 app.post("/tasks", async (req, res) => {
   const { title, description } = req.body;
   try {
@@ -127,13 +127,15 @@ app.post("/tasks", async (req, res) => {
       );
 
     const newTaskId = result.recordset[0].newTaskId;
-    res.json({ id: newTaskId, title, description });
+    const newTask = { Id: newTaskId, Title: title, Description: description };
+
+    res.json(newTask);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
   }
 });
-
+//editin task
 app.put("/tasks/:id", async (req, res) => {
   const taskId = req.params.id;
   const { title, description } = req.body;

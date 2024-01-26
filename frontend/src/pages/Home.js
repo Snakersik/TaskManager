@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import AddTaskForm from "../components/AddTaskForm";
+import Task from "../components/Task";
 import { useTasksContext } from "../hooks/useTaskContext";
 
 function Home() {
@@ -8,15 +9,11 @@ function Home() {
 
   useEffect(() => {
     const fetchTasks = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/tasks");
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const json = await response.json();
+      const response = await fetch("http://localhost:5000/tasks");
+
+      const json = await response.json();
+      if (response.ok) {
         dispatch({ type: "SET_TASK", payload: json });
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
       }
     };
 
@@ -26,6 +23,8 @@ function Home() {
   function handleDisplayCreate() {
     setDisplayCreate(!displayCreate);
   }
+
+  console.log("Tasks before rendering:", tasks); // Log tasks before rendering
 
   return (
     <div className="App">
@@ -39,28 +38,16 @@ function Home() {
         ""
       )}
       <div className="TaskContainer">
-        {tasks &&
+        {tasks && Array.isArray(tasks) ? (
           tasks.map((task) => {
-            console.log("Task item:", task);
             return <Task key={task.Id} taskItem={task} />;
-          })}
+          })
+        ) : (
+          <p>No tasks available</p>
+        )}
       </div>
     </div>
   );
 }
-
-const Task = ({ taskItem }) => {
-  return (
-    <div className="taskBox">
-      <div className="ButtonsContainer">
-        <button className="btn">DELETE</button>
-        <button className="btn">EDIT</button>
-      </div>
-
-      <h2>{taskItem.Title}</h2>
-      <p>{taskItem.Description}</p>
-    </div>
-  );
-};
 
 export default Home;

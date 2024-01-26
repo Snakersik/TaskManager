@@ -10,10 +10,11 @@ export const tasksReducer = (state, action) => {
       };
     case "CREATE_TASK":
       return {
-        tasks: action.payload,
+        tasks: [...state.tasks, action.payload],
       };
     case "DELETE_TASK":
       return {
+        ...state,
         tasks: state.tasks.filter((t) => t.Id !== action.payload.Id),
       };
     default:
