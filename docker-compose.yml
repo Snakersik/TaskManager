@@ -1,15 +1,15 @@
 version: "3"
 services:
-  # web:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - sql-server
-  #   networks:
-  #     - app-network
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - sql-server
+    networks:
+      - app-network
 
   sql-server:
     image: mcr.microsoft.com/mssql/server:2022-preview-ubuntu-22.04
