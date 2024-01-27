@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import AddTaskForm from "../components/AddTaskForm";
 import Task from "../components/Task";
 import { useTasksContext } from "../hooks/useTaskContext";
+import Navbar from "../components/Navbar";
 
 function Home() {
   const [displayCreate, setDisplayCreate] = useState(false);
@@ -28,23 +29,26 @@ function Home() {
 
   return (
     <div className="App">
-      <h1>TaskManager</h1>
-      <button className="btn createbtn" onClick={handleDisplayCreate}>
-        DODAJ NOWE
-      </button>
-      {displayCreate ? (
-        <AddTaskForm handleDisplayCreate={handleDisplayCreate} />
-      ) : (
-        ""
-      )}
-      <div className="TaskContainer">
-        {tasks && Array.isArray(tasks) ? (
-          tasks.map((task) => {
-            return <Task key={task.Id} taskItem={task} />;
-          })
+      <Navbar />
+      <div>
+        <h1>TaskManager</h1>
+        <button className="btn createbtn" onClick={handleDisplayCreate}>
+          DODAJ NOWE
+        </button>
+        {displayCreate ? (
+          <AddTaskForm handleDisplayCreate={handleDisplayCreate} />
         ) : (
-          <p>No tasks available</p>
+          ""
         )}
+        <div className="TaskContainer">
+          {tasks && Array.isArray(tasks) ? (
+            tasks.map((task) => {
+              return <Task key={task.Id} taskItem={task} />;
+            })
+          ) : (
+            <p>No tasks available</p>
+          )}
+        </div>
       </div>
     </div>
   );

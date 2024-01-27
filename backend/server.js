@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(bodyParser.json());
 
-const config = {
+const preConfig = {
   user: "sa",
   password: "Password1!",
   server: "sql-server",
@@ -18,7 +18,7 @@ const config = {
   },
 };
 
-const config2 = {
+const config = {
   user: "sa",
   password: "Password1!",
   database: "TaskManagerDB",
@@ -37,7 +37,7 @@ async function waitForDatabase() {
   while (attempts < maxAttempts) {
     try {
       console.log("Trying to connect to the database...");
-      await sql.connect(config);
+      await sql.connect(preConfig);
       console.log("Database connected successfully");
       return;
     } catch (error) {
@@ -53,7 +53,7 @@ async function waitForDatabase() {
 
 async function initializeDatabase() {
   try {
-    const pool = await sql.connect(config);
+    const pool = await sql.connect(preConfig);
     const dbInit1 = await pool.request().query(`
       IF NOT EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = 'TaskManagerDB')
       CREATE DATABASE TaskManagerDB;
@@ -70,6 +70,8 @@ async function initializeDatabase() {
           Id INT PRIMARY KEY IDENTITY(1,1),
           Title NVARCHAR(255) NOT NULL,
           Description NVARCHAR(MAX)
+          Owner INT, 
+          CONSTRAINT FK_Task_Owner FOREIGN KEY (Owner) REFERENCES Users(Id)
         );
       END
     `);
@@ -95,7 +97,7 @@ async function initializeDatabase() {
 
 app.get("/tasks", async (req, res) => {
   try {
-    const pool = await sql.connect(config2);
+    const pool = await sql.connect(config);
     const result = await pool.request().query("SELECT * FROM Tasks");
     res.json(result.recordset);
   } catch (error) {
@@ -107,7 +109,7 @@ app.get("/tasks", async (req, res) => {
 app.get("/tasks/:id", async (req, res) => {
   const taskId = req.params.id;
   try {
-    const pool = await sql.connect(config2);
+    const pool = await sql.connect(config);
     const result = await pool
       .request()
       .input("id", sql.Int, taskId)
@@ -127,7 +129,7 @@ app.get("/tasks/:id", async (req, res) => {
 app.post("/tasks", async (req, res) => {
   const { title, description } = req.body;
   try {
-    const pool = await sql.connect(config2);
+    const pool = await sql.connect(config);
     const result = await pool
       .request()
       .input("title", sql.NVarChar, title)
@@ -152,7 +154,7 @@ app.put("/tasks/:id", async (req, res) => {
   console.log("Received data:", { taskId, title, description });
 
   try {
-    const pool = await sql.connect(config2);
+    const pool = await sql.connect(config);
     const result = await pool
       .request()
       .input("id", sql.Int, taskId)
@@ -179,7 +181,7 @@ app.put("/tasks/:id", async (req, res) => {
 app.delete("/tasks/:id", async (req, res) => {
   const taskId = req.params.id;
   try {
-    const pool = await sql.connect(config2);
+    const pool = await sql.connect(config);
     await pool
       .request()
       .input("id", sql.Int, taskId)
@@ -197,6 +199,15 @@ app.post("/register", async (req, res) => {
 
   try {
     const pool = await sql.connect(config);
+    const check = await pool
+      .request()
+      .input("username", sql.NVarChar, username)
+      .query("SELECT * FROM Users WHERE Username=@username")
+      
+    if(check.recordset.length != 0) {
+      return res.status(404).send("Username exists already!")
+    }
+
     const result = await pool
       .request()
       .input("username", sql.NVarChar, username)
@@ -208,7 +219,7 @@ app.post("/register", async (req, res) => {
     res.json({ message: "User registered successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).send(error, " Internal Server Error");
   }
 });
 
@@ -218,7 +229,7 @@ app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const pool = await sql.connect(config2);
+    const pool = await sql.connect(config);
     const result = await pool
       .request()
       .input("username", sql.NVarChar, username)
