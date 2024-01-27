@@ -22,11 +22,13 @@ export const useRegister = () => {
     });
     const json = await response.json();
 
-    if (!response.ok) {
+    if (response.status===409) {
       setIsLoading(false);
-      setError(json.error);
-    }
-    if (response.ok) {
+      setError("Taki użytkownik już jest w bazie!");
+    } else if (!response.ok){
+      setIsLoading(false);
+      setError(json.message);
+    } else {
       // save the user to local storage
       localStorage.setItem("user", JSON.stringify(json));
 

@@ -34,12 +34,6 @@ function Home() {
       ) : (
         ""
       )}
-      <div className="TaskContainer">
-        {tasks && Array.isArray(tasks)
-          ? tasks.map((task) => {
-              return <Task key={task.Id} taskItem={task} />;
-            })
-          : ""}
         <div className="TaskContainer">
           {tasks && Array.isArray(tasks) ? (
             tasks.map((task) => {
@@ -50,7 +44,6 @@ function Home() {
           )}
         </div>
       </div>
-    </div>
   );
 }
 

@@ -28,7 +28,7 @@ const Register = () => {
         value={password}
       />
       <button disabled={isLoading}>Register</button>
-      {error && <div className="error">{error}</div>}
+      { <div className="error">{error}</div>}
     </form>
   );
 };

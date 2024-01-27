@@ -51,7 +51,10 @@ async function waitForDatabase() {
   process.exit(1);
 }
 
+let dbInitAttempts = 0;
+const dbInitMaxAttempts = 5;
 async function initializeDatabase() {
+  const delay = 10000;
   try {
     const pool = await sql.connect(preConfig);
     const dbInit1 = await pool.request().query(`
@@ -90,8 +93,13 @@ async function initializeDatabase() {
 
     console.log("Database initialized successfully");
   } catch (error) {
-    console.error("Error initializing database:", error);
-    throw error;
+    if(dbInitAttempts < dbInitMaxAttempts)
+    {
+      console.error("Error initializing database: ", error, "\nretrying... ");
+      dbInitAttempts++;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      initializeDatabase();
+    }
   }
 }
 
@@ -205,21 +213,20 @@ app.post("/register", async (req, res) => {
       .query("SELECT * FROM Users WHERE Username=@username");
 
     if (check.recordset.length != 0) {
-      return res.status(404).send("Username exists already!");
-    }
-
-    const result = await pool
+      res.status(409).json({ message: "Username already exists" });
+    } else {
+      const result = await pool
       .request()
       .input("username", sql.NVarChar, username)
       .input("password", sql.NVarChar, password)
       .query(
         "INSERT INTO Users (Username, Password) VALUES (@username, @password)"
       );
-
-    res.json({ message: "User registered successfully", username });
+      res.json({ message: "User registered successfully" });
+    }
   } catch (error) {
     console.error(error);
-    res.status(500).send(error, " Internal Server Error");
+    res.status(500).send("Internal Server Error");
   }
 });
 
