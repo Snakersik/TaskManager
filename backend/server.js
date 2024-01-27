@@ -63,19 +63,6 @@ async function initializeDatabase() {
       USE TaskManagerDB;
     `);
 
-    const tasksTable = await pool.request().query(`
-      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Tasks')
-      BEGIN
-        CREATE TABLE Tasks (
-          Id INT PRIMARY KEY IDENTITY(1,1),
-          Title NVARCHAR(255) NOT NULL,
-          Description NVARCHAR(MAX)
-          Owner INT, 
-          CONSTRAINT FK_Task_Owner FOREIGN KEY (Owner) REFERENCES Users(Id)
-        );
-      END
-    `);
-
     const usersTable = await pool.request().query(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Users')
       BEGIN
@@ -86,6 +73,19 @@ async function initializeDatabase() {
         );
       END
     `);
+    
+    const tasksTable = await pool.request().query(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Tasks')
+      BEGIN
+        CREATE TABLE Tasks (
+          Id INT PRIMARY KEY IDENTITY(1,1),
+          Title NVARCHAR(255) NOT NULL,
+          Description NVARCHAR(MAX),
+          Owner INT FOREIGN KEY REFERENCES Users(Id)
+        );
+      END
+    `);
+
     pool.close();
 
     console.log("Database initialized successfully");
