@@ -14,21 +14,27 @@ const Navbar = () => {
     <header>
       <div className="container">
         <Link to="/">
-          <h1>TaskManager</h1>
+          <h1>Task Manager</h1>
         </Link>
         <nav>
           {user && (
             <div>
               <span>
-                <i className="fa-solid fa-user fa-xl"></i>
-                {user.login}
+                <i className="fa-solid fa-user  fa-lg"></i>
+                {user.username}
               </span>
               <button onClick={handleClick}>Log out</button>
             </div>
           )}
           {!user && (
             <div>
-              <Link to="/login">Login</Link>
+              <Link to="/login">
+                <button>Login</button>
+              </Link>
+              <Link to="/register">
+                {" "}
+                <button>Signup</button>
+              </Link>
             </div>
           )}
         </nav>

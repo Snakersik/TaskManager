@@ -1,5 +1,16 @@
+## komenda uruchamiająca
 
-docker build -t taskmanager . 
+docker compose up
 
+## Uczestnicy projekty
 
-docker run -p 3000:3000 taskmanager
+Konrad Tratwal 41865
+Tomasz
+
+## Działanie aplikacji
+
+Prosta aplikacja pozwalająca na rejestrację użytkownika oraz jego logowanie. Każdy zalogowany użytkownik ma dostęp do utworzynych przez innych zadań ich edycje i usuwania oraz dodanie swojego zadania.
+
+## W przypadku błędu
+
+Error response from daemon należy uruchomić aplikację ponownie.

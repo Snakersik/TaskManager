@@ -7,6 +7,10 @@ export const useLogin = () => {
   const { dispatch } = useAuthContext();
 
   const logedin = async (username, password) => {
+    if (!username || !password) {
+      setError("Nazwa użytkownika i hasło nie mogą być puste");
+      return;
+    }
     setIsLoading(true);
     setError(null);
 
@@ -15,13 +19,14 @@ export const useLogin = () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
     });
-    const json = await response.json();
 
     if (!response.ok) {
+      const errorMessage = await response.text(); // Get error message as text
       setIsLoading(false);
-      setError(json.error);
-    }
-    if (response.ok) {
+      setError(errorMessage);
+    } else {
+      const json = await response.json();
+
       // save the user to local storage
       localStorage.setItem("user", JSON.stringify(json));
 

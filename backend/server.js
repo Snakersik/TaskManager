@@ -41,7 +41,7 @@ async function waitForDatabase() {
       console.log("Database connected successfully");
       return;
     } catch (error) {
-      console.error("Error connecting to the database:", error);
+      console.error("Database still starting retrying in 10s");
       attempts++;
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
@@ -73,7 +73,7 @@ async function initializeDatabase() {
         );
       END
     `);
-    
+
     const tasksTable = await pool.request().query(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Tasks')
       BEGIN
@@ -202,10 +202,10 @@ app.post("/register", async (req, res) => {
     const check = await pool
       .request()
       .input("username", sql.NVarChar, username)
-      .query("SELECT * FROM Users WHERE Username=@username")
-      
-    if(check.recordset.length != 0) {
-      return res.status(404).send("Username exists already!")
+      .query("SELECT * FROM Users WHERE Username=@username");
+
+    if (check.recordset.length != 0) {
+      return res.status(404).send("Username exists already!");
     }
 
     const result = await pool
@@ -216,7 +216,7 @@ app.post("/register", async (req, res) => {
         "INSERT INTO Users (Username, Password) VALUES (@username, @password)"
       );
 
-    res.json({ message: "User registered successfully" });
+    res.json({ message: "User registered successfully", username });
   } catch (error) {
     console.error(error);
     res.status(500).send(error, " Internal Server Error");
@@ -248,7 +248,7 @@ app.post("/login", async (req, res) => {
           }
         );
 
-        res.json({ message: "Login successful", token });
+        res.json({ message: "Login successful", token, username });
       } else {
         res.status(401).send("Invalid password");
       }

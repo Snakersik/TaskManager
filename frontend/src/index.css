@@ -4,6 +4,8 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  --primary: #1aac83;
+  --error: #e7195a;
 }
 
 body {
@@ -18,7 +20,11 @@ code {
     monospace;
 }
 
-textarea {
+header {
+  padding-top: 30px;
+}
+
+.CreateTaskForm textarea {
   min-width: 50%;
   min-height: 100px;
   max-width: 50%; /* Adjust the maximum width as needed */
@@ -27,7 +33,7 @@ textarea {
   border-radius: 10px;
 }
 
-input {
+.CreateTaskForm input {
   width: 50%;
   border-radius: 10px;
 }
@@ -54,7 +60,7 @@ input {
   background-color: rgb(151, 204, 193);
   display: flex;
   flex-direction: column;
-  width: 200px;
+  width: 300px;
   padding: 20px;
   height: 200px;
   border-radius: 20px;
@@ -64,6 +70,7 @@ input {
   max-width: 1400px;
   padding: 20px;
   margin: 0 auto;
+  height: 100vh;
 }
 
 .ButtonsContainer {
@@ -193,4 +200,30 @@ nav button {
   font-family: "Poppins";
   cursor: pointer;
   font-size: 1em;
+}
+
+.ButtonsContainer button {
+  background: #fff;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  padding: 4px 5px;
+  border-radius: 4px;
+  font-family: "Poppins";
+  cursor: pointer;
+  font-size: 0.8em;
+}
+header {
+  background: #fff;
+}
+header .container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+header a {
+  color: #333;
+  text-decoration: none;
 }

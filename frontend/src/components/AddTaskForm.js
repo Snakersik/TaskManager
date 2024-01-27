@@ -39,7 +39,6 @@ const AddTaskForm = ({ onAddTask, handleDisplayCreate }) => {
       setTitle("");
       setDescription("");
       setError(null);
-      console.log("new task added", json);
       dispatch({ type: "CREATE_TASK", payload: json });
     } else {
       console.error("Invalid data format received from the server:", json);

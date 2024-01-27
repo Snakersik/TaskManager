@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import AddTaskForm from "../components/AddTaskForm";
 import Task from "../components/Task";
 import { useTasksContext } from "../hooks/useTaskContext";
-import Navbar from "../components/Navbar";
 
 function Home() {
   const [displayCreate, setDisplayCreate] = useState(false);
@@ -25,21 +24,22 @@ function Home() {
     setDisplayCreate(!displayCreate);
   }
 
-  console.log("Tasks before rendering:", tasks); // Log tasks before rendering
-
   return (
-    <div className="App">
-      <Navbar />
-      <div>
-        <h1>TaskManager</h1>
-        <button className="btn createbtn" onClick={handleDisplayCreate}>
-          DODAJ NOWE
-        </button>
-        {displayCreate ? (
-          <AddTaskForm handleDisplayCreate={handleDisplayCreate} />
-        ) : (
-          ""
-        )}
+    <div className="home">
+      <button className="btn createbtn" onClick={handleDisplayCreate}>
+        DODAJ NOWE
+      </button>
+      {displayCreate ? (
+        <AddTaskForm handleDisplayCreate={handleDisplayCreate} />
+      ) : (
+        ""
+      )}
+      <div className="TaskContainer">
+        {tasks && Array.isArray(tasks)
+          ? tasks.map((task) => {
+              return <Task key={task.Id} taskItem={task} />;
+            })
+          : ""}
         <div className="TaskContainer">
           {tasks && Array.isArray(tasks) ? (
             tasks.map((task) => {

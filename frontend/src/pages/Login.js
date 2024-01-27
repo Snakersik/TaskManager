@@ -16,7 +16,7 @@ const Login = () => {
   return (
     <form className="login" onSubmit={handleSubmit}>
       <h3>Zaloguj się</h3>
-      <label>Login:</label>
+      <label>Nazwa użytkownika:</label>
       <input
         type="text"
         onChange={(e) => setUsername(e.target.value)}
@@ -29,10 +29,11 @@ const Login = () => {
         value={password}
       ></input>
       <button disabled={isLoading}>Log in</button>
-      {error && <div className="error">{error.message}</div>}
+      {error && <div className="error">{error}</div>}
       <div>
-        Don't have an account? <Link to="/register">Sign up now</Link>
+        Nie masz konta? <Link to="/register">Zarejestruj się</Link>
       </div>
+      {console.log(error)}
     </form>
   );
 };
