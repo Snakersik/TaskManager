@@ -9,7 +9,7 @@ Tomasz
 
 ## Działanie aplikacji
 
-Prosta aplikacja pozwalająca na rejestrację użytkownika oraz jego logowanie. Każdy zalogowany użytkownik ma dostęp do utworzynych przez innych zadań ich edycje i usuwania oraz dodanie swojego zadania.
+Prosta aplikacja pozwalająca na rejestrację użytkownika oraz jego logowanie. Każdy zalogowany użytkownik ma dostęp do utworzynych przez siebie  zadań ich edycje i usuwania oraz dodanie swojego zadania.
 
 ## W przypadku błędu
 
