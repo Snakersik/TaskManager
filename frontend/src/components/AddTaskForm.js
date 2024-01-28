@@ -15,11 +15,17 @@ const AddTaskForm = ({ onAddTask, handleDisplayCreate }) => {
     setDescription(e.target.value);
   };
 
+  const token = JSON.parse(localStorage.getItem("user"))?.token;
+
   const handleAddTask = async () => {
     if (!title || !description) {
       setError("Please provide both title and description.");
       return;
+    } else if (!token) {
+      setError("User not logged in.");
+      return;
     }
+
     const task = { title, description };
 
     const response = await fetch("http://localhost:5000/tasks", {
@@ -27,6 +33,7 @@ const AddTaskForm = ({ onAddTask, handleDisplayCreate }) => {
       body: JSON.stringify(task),
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
       },
     });
 

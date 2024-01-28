@@ -105,8 +105,13 @@ async function initializeDatabase() {
 
 app.get("/tasks", async (req, res) => {
   try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(' ')[1];
+    const userID = await verifyToken(token)
     const pool = await sql.connect(config);
-    const result = await pool.request().query("SELECT * FROM Tasks");
+    const result = await pool.request()
+      .input("userId", sql.Int, userID)
+      .query("SELECT * FROM Tasks WHERE Owner = @userId");
     res.json(result.recordset);
   } catch (error) {
     console.error(error);
@@ -136,23 +141,27 @@ app.get("/tasks/:id", async (req, res) => {
 
 app.post("/tasks", async (req, res) => {
   const { title, description } = req.body;
+  const authHeader = req.headers.authorization;
+  const token = authHeader.split(' ')[1];
   try {
+    const userID = await verifyToken(token);
     const pool = await sql.connect(config);
     const result = await pool
       .request()
       .input("title", sql.NVarChar, title)
       .input("description", sql.NVarChar, description)
+      .input("owner", sql.Int, userID)
       .query(
-        "INSERT INTO Tasks (Title, Description) VALUES (@title, @description); SELECT SCOPE_IDENTITY() AS newTaskId"
+        "INSERT INTO Tasks (Title, Description, Owner) VALUES (@title, @description, @owner); SELECT SCOPE_IDENTITY() AS newTaskId"
       );
 
     const newTaskId = result.recordset[0].newTaskId;
-    const newTask = { Id: newTaskId, Title: title, Description: description };
+    const newTask = { Id: newTaskId, Title: title, Description: description, Owner: userID};
 
     res.json(newTask);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).send("Issue adding task in backend");
   }
 });
 
@@ -268,20 +277,19 @@ app.post("/login", async (req, res) => {
   }
 });
 
-const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization;
-
-  if (!token) {
-    return res.status(403).send("Token not provided");
-  }
-
-  jwt.verify(token, "x%W2oP9z$L&k#qR*8@!E7h^sG3aB@fMv", (err, decoded) => {
-    if (err) {
-      return res.status(401).send("Invalid token");
+const verifyToken = (token) => {
+  return new Promise((resolve, reject) => {
+    if (!token) {
+      reject("Token not provided");
     }
 
-    req.userId = decoded.userId;
-    next();
+    jwt.verify(token, "x%W2oP9z$L&k#qR*8@!E7h^sG3aB@fMv", (err, decoded) => {
+      if (err) {
+        reject("Invalid token");
+      } else {
+        resolve(decoded.userId);
+      }
+    });
   });
 };
 
